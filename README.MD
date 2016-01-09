@@ -9,6 +9,7 @@ package main
 import (
 	"github.com/Sirupsen/logrus"
 	"github.com/sohlich/elogrus"
+	"gopkg.in/olivere/elastic.v3"
 )
 
 
