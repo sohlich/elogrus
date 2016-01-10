@@ -1,6 +1,7 @@
 package elogrus
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -9,6 +10,14 @@ import (
 	"gopkg.in/olivere/elastic.v3"
 )
 
+var (
+	// Fired if the
+	// index is not created
+	ErrCannotCreateIndex = fmt.Errorf("Cannot create index")
+)
+
+// ElasticHook is a logrus
+// hook for ElasticSearch
 type ElasticHook struct {
 	client *elastic.Client
 	host   string
@@ -16,7 +25,12 @@ type ElasticHook struct {
 	levels []logrus.Level
 }
 
-func NewElasticHook(client *elastic.Client, host string, level logrus.Level, index string) *ElasticHook {
+// NewElasticHook creates new hook
+// client - ElasticSearch client using gopkg.in/olivere/elastic.v3
+// host - host of system
+// level - log level
+// index - name of the index in ElasticSearch
+func NewElasticHook(client *elastic.Client, host string, level logrus.Level, index string) (*ElasticHook, error) {
 	levels := []logrus.Level{}
 	for _, l := range []logrus.Level{
 		logrus.PanicLevel,
@@ -35,17 +49,15 @@ func NewElasticHook(client *elastic.Client, host string, level logrus.Level, ind
 	exists, err := client.IndexExists(index).Do()
 	if err != nil {
 		// Handle error
-		panic(err)
+		return nil, err
 	}
 	if !exists {
-		// Create a new index.
 		createIndex, err := client.CreateIndex(index).Do()
 		if err != nil {
-			// Handle error
-			panic(err)
+			return nil, err
 		}
 		if !createIndex.Acknowledged {
-			// Not acknowledged
+			return nil, ErrCannotCreateIndex
 		}
 	}
 
@@ -54,9 +66,11 @@ func NewElasticHook(client *elastic.Client, host string, level logrus.Level, ind
 		host:   host,
 		index:  index,
 		levels: levels,
-	}
+	}, nil
 }
 
+// Fire is required to implement
+// Logrus hook
 func (hook *ElasticHook) Fire(entry *logrus.Entry) error {
 
 	level := entry.Level.String()
@@ -85,6 +99,8 @@ func (hook *ElasticHook) Fire(entry *logrus.Entry) error {
 	return err
 }
 
+// Required for logrus
+// hook implementation
 func (hook *ElasticHook) Levels() []logrus.Level {
 	return hook.levels
 }
