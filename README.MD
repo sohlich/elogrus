@@ -3,7 +3,7 @@
 Elasticsearch version | Elastic version -| Package URL
 ----------------------|------------------|------------
 5.x                   | 5.0              | [`gopkg.in/sohlich/elogrus.v2`](gopkg.in/sohlich/elogrus.v2)
-2.x                   | 3.0              | [`gopkg.in/sohlich/elogrus.v1`](gopkg.in/sohlich/elogrus.v2)
+2.x                   | 3.0              | [`gopkg.in/sohlich/elogrus.v1`](gopkg.in/sohlich/elogrus.v1)
 
 
 ## Usage
