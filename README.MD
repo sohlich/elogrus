@@ -2,18 +2,24 @@
 
 Elasticsearch version | Elastic version -| Package URL
 ----------------------|------------------|------------
-5.x                   | 5.0              | [`gopkg.in/sohlich/elogrus.v2`](gopkg.in/sohlich/elogrus.v2)
-2.x                   | 3.0              | [`gopkg.in/sohlich/elogrus.v1`](gopkg.in/sohlich/elogrus.v1)
+5.x                   | 5.0              | [`gopkg.in/sohlich/elogrus.v2`](http://gopkg.in/sohlich/elogrus.v2)
+2.x                   | 3.0              | [`gopkg.in/sohlich/elogrus.v1`](http://gopkg.in/sohlich/elogrus.v1)
 
 
 ## Usage
+
+```
+go get gopkg.in/sohlich/elogrus.v2
+```
+
+
 
 ```go
 package main
 
 import (
 	"github.com/Sirupsen/logrus"
-	"github.com/sohlich/elogrus"
+	"gopkg.in/sohlich/elogrus.v2"
 	"gopkg.in/olivere/elastic.v5"
 )
 
@@ -24,7 +30,10 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}	
-	hook := NewElasticHook(client, "localhost", logrus.DebugLevel, "mylog")
+	hook, err := elogrus.NewElasticHook(client, "localhost", logrus.DebugLevel, "mylog")
+	if err != nil {
+		log.Panic(err)
+	}	
 	log.Hooks.Add(hook)
 
 	log.WithFields(logrus.Fields{
