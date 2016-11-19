@@ -24,7 +24,10 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}	
-	hook := NewElasticHook(client, "localhost", logrus.DebugLevel, "mylog")
+	hook, err := elogrus.NewElasticHook(client, "localhost", logrus.DebugLevel, "mylog")
+	if err != nil {
+		log.Panic(err)
+	}	
 	log.Hooks.Add(hook)
 
 	log.WithFields(logrus.Fields{
