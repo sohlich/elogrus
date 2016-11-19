@@ -20,7 +20,7 @@ package main
 import (
 	"github.com/Sirupsen/logrus"
 	"gopkg.in/sohlich/elogrus.v2"
-	"gopkg.in/olivere/elastic.v3"
+	"gopkg.in/olivere/elastic.v5"
 )
 
 
