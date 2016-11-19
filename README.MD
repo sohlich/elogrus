@@ -8,12 +8,18 @@ Elasticsearch version | Elastic version -| Package URL
 
 ## Usage
 
+```
+go get gopkg.in/sohlich/elogrus.v2
+```
+
+
+
 ```go
 package main
 
 import (
 	"github.com/Sirupsen/logrus"
-	"github.com/sohlich/elogrus"
+	"gopkg.in/sohlich/elogrus.v2"
 	"gopkg.in/olivere/elastic.v3"
 )
 
