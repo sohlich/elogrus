@@ -17,15 +17,21 @@ var (
 	ErrCannotCreateIndex = fmt.Errorf("Cannot create index")
 )
 
+type IndexNameFunc func() string
+
 // ElasticHook is a logrus
 // hook for ElasticSearch
 type ElasticHook struct {
 	client    *elastic.Client
 	host      string
-	index     string
+	index     IndexNameFunc
 	levels    []logrus.Level
 	ctx       context.Context
 	ctxCancel context.CancelFunc
+}
+
+func NewElasticHook(client *elastic.Client, host string, level logrus.Level, index string) (*ElasticHook, error) {
+	return NewElasticHookWithFunc(client, host, level, func() string { return index })
 }
 
 // NewElasticHook creates new hook
@@ -33,7 +39,7 @@ type ElasticHook struct {
 // host - host of system
 // level - log level
 // index - name of the index in ElasticSearch
-func NewElasticHook(client *elastic.Client, host string, level logrus.Level, index string) (*ElasticHook, error) {
+func NewElasticHookWithFunc(client *elastic.Client, host string, level logrus.Level, indexFunc IndexNameFunc) (*ElasticHook, error) {
 	levels := []logrus.Level{}
 	for _, l := range []logrus.Level{
 		logrus.PanicLevel,
@@ -51,13 +57,13 @@ func NewElasticHook(client *elastic.Client, host string, level logrus.Level, ind
 	ctx, cancel := context.WithCancel(context.TODO())
 
 	// Use the IndexExists service to check if a specified index exists.
-	exists, err := client.IndexExists(index).Do(ctx)
+	exists, err := client.IndexExists(indexFunc()).Do(ctx)
 	if err != nil {
 		// Handle error
 		return nil, err
 	}
 	if !exists {
-		createIndex, err := client.CreateIndex(index).Do(ctx)
+		createIndex, err := client.CreateIndex(indexFunc()).Do(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -69,7 +75,7 @@ func NewElasticHook(client *elastic.Client, host string, level logrus.Level, ind
 	return &ElasticHook{
 		client:    client,
 		host:      host,
-		index:     index,
+		index:     indexFunc,
 		levels:    levels,
 		ctx:       ctx,
 		ctxCancel: cancel,
@@ -98,10 +104,11 @@ func (hook *ElasticHook) Fire(entry *logrus.Entry) error {
 
 	_, err := hook.client.
 		Index().
-		Index(hook.index).
+		Index(hook.index()).
 		Type("log").
 		BodyJson(msg).
 		Do(hook.ctx)
+
 	return err
 }
 
