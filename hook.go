@@ -7,7 +7,8 @@ import (
 
 	"github.com/Sirupsen/logrus"
 
-	"gopkg.in/olivere/elastic.v3"
+	"golang.org/x/net/context"
+	"gopkg.in/olivere/elastic.v5"
 )
 
 var (
@@ -19,14 +20,16 @@ var (
 // ElasticHook is a logrus
 // hook for ElasticSearch
 type ElasticHook struct {
-	client *elastic.Client
-	host   string
-	index  string
-	levels []logrus.Level
+	client    *elastic.Client
+	host      string
+	index     string
+	levels    []logrus.Level
+	ctx       context.Context
+	ctxCancel context.CancelFunc
 }
 
 // NewElasticHook creates new hook
-// client - ElasticSearch client using gopkg.in/olivere/elastic.v3
+// client - ElasticSearch client using gopkg.in/olivere/elastic.v5
 // host - host of system
 // level - log level
 // index - name of the index in ElasticSearch
@@ -45,14 +48,16 @@ func NewElasticHook(client *elastic.Client, host string, level logrus.Level, ind
 		}
 	}
 
+	ctx, cancel := context.WithCancel(context.TODO())
+
 	// Use the IndexExists service to check if a specified index exists.
-	exists, err := client.IndexExists(index).Do()
+	exists, err := client.IndexExists(index).Do(ctx)
 	if err != nil {
 		// Handle error
 		return nil, err
 	}
 	if !exists {
-		createIndex, err := client.CreateIndex(index).Do()
+		createIndex, err := client.CreateIndex(index).Do(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -62,10 +67,12 @@ func NewElasticHook(client *elastic.Client, host string, level logrus.Level, ind
 	}
 
 	return &ElasticHook{
-		client: client,
-		host:   host,
-		index:  index,
-		levels: levels,
+		client:    client,
+		host:      host,
+		index:     index,
+		levels:    levels,
+		ctx:       ctx,
+		ctxCancel: cancel,
 	}, nil
 }
 
@@ -94,8 +101,7 @@ func (hook *ElasticHook) Fire(entry *logrus.Entry) error {
 		Index(hook.index).
 		Type("log").
 		BodyJson(msg).
-		Do()
-
+		Do(hook.ctx)
 	return err
 }
 
@@ -103,4 +109,10 @@ func (hook *ElasticHook) Fire(entry *logrus.Entry) error {
 // hook implementation
 func (hook *ElasticHook) Levels() []logrus.Level {
 	return hook.levels
+}
+
+// Cancels all calls to
+// elastic
+func (hook *ElasticHook) Cancel() {
+	hook.ctxCancel()
 }
