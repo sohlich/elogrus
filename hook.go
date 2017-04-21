@@ -90,7 +90,7 @@ func (hook *ElasticHook) Fire(entry *logrus.Entry) error {
 
 	msg := struct {
 		Host      string
-		Timestamp string
+		Timestamp string `json:"@timestamp"`
 		Message   string
 		Data      logrus.Fields
 		Level     string
