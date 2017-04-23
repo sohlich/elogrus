@@ -88,6 +88,12 @@ func (hook *ElasticHook) Fire(entry *logrus.Entry) error {
 
 	level := entry.Level.String()
 
+	if errData, ok := entry.Data[logrus.ErrorKey]; ok {
+		if err, ok := errData.(error); ok && entry.Data[logrus.ErrorKey] != nil {
+			entry.Data[logrus.ErrorKey] = err.Error()
+		}
+	}
+
 	msg := struct {
 		Host      string
 		Timestamp string `json:"@timestamp"`
