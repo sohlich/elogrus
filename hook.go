@@ -88,8 +88,8 @@ func (hook *ElasticHook) Fire(entry *logrus.Entry) error {
 
 	level := entry.Level.String()
 
-	if errData, ok := entry.Data[logrus.ErrorKey]; ok {
-		if err, ok := errData.(error); ok && entry.Data[logrus.ErrorKey] != nil {
+	if e, ok := entry.Data[logrus.ErrorKey]; ok && e != nil {
+		if err, ok := e.(error); ok {
 			entry.Data[logrus.ErrorKey] = err.Error()
 		}
 	}
