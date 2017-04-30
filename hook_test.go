@@ -81,11 +81,6 @@ func TestError(t *testing.T) {
 		DeleteIndex("errorlog").
 		Do(context.TODO())
 
-	if err != nil {
-		t.Error(err.Error())
-		t.FailNow()
-	}
-
 	time.Sleep(1 * time.Second)
 
 	hook, err := NewElasticHook(client, "localhost", logrus.DebugLevel, "errorlog")
