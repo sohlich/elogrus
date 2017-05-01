@@ -30,15 +30,22 @@ type ElasticHook struct {
 	ctxCancel context.CancelFunc
 }
 
-func NewElasticHook(client *elastic.Client, host string, level logrus.Level, index string) (*ElasticHook, error) {
-	return NewElasticHookWithFunc(client, host, level, func() string { return index })
-}
-
 // NewElasticHook creates new hook
 // client - ElasticSearch client using gopkg.in/olivere/elastic.v5
 // host - host of system
 // level - log level
 // index - name of the index in ElasticSearch
+func NewElasticHook(client *elastic.Client, host string, level logrus.Level, index string) (*ElasticHook, error) {
+	return NewElasticHookWithFunc(client, host, level, func() string { return index })
+}
+
+// NewElasticHookWithFunc creates new hook with
+// function that provides the index name. This is useful if the index name is
+// somehow dynamic especially based on time.
+// client - ElasticSearch client using gopkg.in/olivere/elastic.v5
+// host - host of system
+// level - log level
+// indexFunc - function providing the name of index
 func NewElasticHookWithFunc(client *elastic.Client, host string, level logrus.Level, indexFunc IndexNameFunc) (*ElasticHook, error) {
 	levels := []logrus.Level{}
 	for _, l := range []logrus.Level{
