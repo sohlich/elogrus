@@ -1,13 +1,13 @@
 package elogrus
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/Sirupsen/logrus"
 
-	"golang.org/x/net/context"
 	"gopkg.in/olivere/elastic.v5"
 )
 

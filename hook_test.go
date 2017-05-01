@@ -1,6 +1,7 @@
 package elogrus
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"testing"
@@ -14,9 +15,9 @@ import (
 	"gopkg.in/olivere/elastic.v5"
 
 	"reflect"
-
-	"golang.org/x/net/context"
 )
+
+//docker run -it --rm -p 7777:9200 -p 5601:5601 sebp/elk
 
 type Log struct{}
 
