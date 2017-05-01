@@ -11,7 +11,7 @@ services:
   
 before_install:
 - docker pull sebp/elk
-- docker docker run -d -p 7777:9200 -p 5601:5601 sebp/elk
+- docker run -d -p 7777:9200 -p 5601:5601 sebp/elk
 - docker ps -a
 
 install:
