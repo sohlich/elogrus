@@ -17,3 +17,4 @@ before_install:
 install:
   - go get github.com/Sirupsen/logrus
   - go get gopkg.in/olivere/elastic.v5
+  - travis_wait 2
