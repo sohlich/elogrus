@@ -26,7 +26,7 @@ func (l Log) Printf(format string, args ...interface{}) {
 }
 
 func TestHook(t *testing.T) {
-	if r, err := http.Get("http://localhost:7777"); err != nil {
+	if r, err := http.Get("http://127.0.0.1:7777"); err != nil {
 		log.Fatal("Elastic not reachable")
 	} else {
 		buf, _ := ioutil.ReadAll(r.Body)
@@ -35,7 +35,7 @@ func TestHook(t *testing.T) {
 	}
 
 	client, err := elastic.NewClient(elastic.SetTraceLog(Log{}),
-		elastic.SetURL("http://localhost:7777"),
+		elastic.SetURL("http://127.0.0.1:7777"),
 		elastic.SetHealthcheck(false),
 		elastic.SetSniff(false))
 
