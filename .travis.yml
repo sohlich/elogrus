@@ -11,10 +11,10 @@ services:
   
 before_install:
 - docker pull sebp/elk
-- docker run -d -p 7777:9200 -p 5601:5601 sebp/elk
-- docker ps -a
+- docker run -d -p --name elk 7777:9200 -p 5601:5601 sebp/elk
+- docker logs elk
 
 install:
-  - go get github.com/Sirupsen/logrus
+  - go get github.com/sirupsen/logrus
   - go get gopkg.in/olivere/elastic.v5
-  - travis_wait 2
+  - travis_wait 5
