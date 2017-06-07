@@ -1,4 +1,4 @@
-sudo: required
+sudo: true
 language: go
 go:
     - tip
@@ -9,6 +9,9 @@ notifications:
 services:
   - docker
   
+before_script:
+  - sudo sysctl -w vm.max_map_count=262144
+
 before_install:
 - docker pull sebp/elk
 - docker run -d -p 7777:9200 -p 5601:5601 --name elk sebp/elk
