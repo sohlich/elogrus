@@ -1,4 +1,4 @@
-sudo: true
+sudo: required
 language: go
 go:
     - tip
@@ -13,9 +13,11 @@ before_script:
   - sudo sysctl -w vm.max_map_count=262144
 
 before_install:
-- docker pull sebp/elk
-- docker run -d -p 7777:9200 -p 5601:5601 --name elk sebp/elk
-- docker logs elk
+  - docker pull sebp/elk
+  - docker run -d -p 7777:9200 --name elk elasticsearch:alpine
+  - docker logs elk
+  - docker inspect elk
+  - travis_wait 5
 
 install:
   - go get github.com/sirupsen/logrus
