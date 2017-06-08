@@ -18,7 +18,7 @@ go get gopkg.in/sohlich/elogrus.v2
 package main
 
 import (
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/sohlich/elogrus.v2"
 	"gopkg.in/olivere/elastic.v5"
 )
