@@ -6,13 +6,18 @@ Elasticsearch version | Elastic version -| Package URL
 2.x                   | 3.0              | [`gopkg.in/sohlich/elogrus.v1`](http://gopkg.in/sohlich/elogrus.v1)
 
 
-## Usage
+## Changelog
+
+v2.1 - Added support for async hook
+
+
+## Import
 
 ```
 go get gopkg.in/sohlich/elogrus.v2
 ```
 
-
+## Usage
 
 ```go
 package main
@@ -41,4 +46,12 @@ func main() {
 		"age":  42,
 	}).Error("Hello world!")
 }
+```
+
+### Asynchronous hook
+
+```go
+	...
+	elogrus.NewAsyncElasticHook(client, "localhost", logrus.DebugLevel, "mylog")
+	...
 ```
