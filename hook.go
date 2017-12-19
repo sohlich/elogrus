@@ -19,7 +19,7 @@ var (
 
 type IndexNameFunc func() string
 
-type fireFunc func(entry *logrus.Entry, hook *ElasticHook) error
+type fireFunc func(entry *logrus.Entry, hook *ElasticHook, indexName string) error
 
 // ElasticHook is a logrus
 // hook for ElasticSearch
@@ -120,15 +120,15 @@ func newHookFuncAndFireFunc(client *elastic.Client, host string, level logrus.Le
 // Fire is required to implement
 // Logrus hook
 func (hook *ElasticHook) Fire(entry *logrus.Entry) error {
-	return hook.fireFunc(entry, hook)
+	return hook.fireFunc(entry, hook, hook.index())
 }
 
-func asyncFireFunc(entry *logrus.Entry, hook *ElasticHook) error {
-	go syncFireFunc(entry, hook)
+func asyncFireFunc(entry *logrus.Entry, hook *ElasticHook, indexName string) error {
+	go syncFireFunc(entry, hook, hook.index())
 	return nil
 }
 
-func syncFireFunc(entry *logrus.Entry, hook *ElasticHook) error {
+func syncFireFunc(entry *logrus.Entry, hook *ElasticHook, indexName string) error {
 	level := entry.Level.String()
 
 	if e, ok := entry.Data[logrus.ErrorKey]; ok && e != nil {
