@@ -19,6 +19,8 @@ var (
 
 type IndexNameFunc func() string
 
+type fireFunc func(entry *logrus.Entry, hook *ElasticHook) error
+
 // ElasticHook is a logrus
 // hook for ElasticSearch
 type ElasticHook struct {
@@ -28,6 +30,7 @@ type ElasticHook struct {
 	levels    []logrus.Level
 	ctx       context.Context
 	ctxCancel context.CancelFunc
+	fireFunc  fireFunc
 }
 
 // NewElasticHook creates new hook
@@ -39,6 +42,15 @@ func NewElasticHook(client *elastic.Client, host string, level logrus.Level, ind
 	return NewElasticHookWithFunc(client, host, level, func() string { return index })
 }
 
+// NewElasticHook creates new  hook with asynchronous log
+// client - ElasticSearch client using gopkg.in/olivere/elastic.v5
+// host - host of system
+// level - log level
+// index - name of the index in ElasticSearch
+func NewAsyncElasticHook(client *elastic.Client, host string, level logrus.Level, index string) (*ElasticHook, error) {
+	return NewAsyncElasticHookWithFunc(client, host, level, func() string { return index })
+}
+
 // NewElasticHookWithFunc creates new hook with
 // function that provides the index name. This is useful if the index name is
 // somehow dynamic especially based on time.
@@ -47,6 +59,21 @@ func NewElasticHook(client *elastic.Client, host string, level logrus.Level, ind
 // level - log level
 // indexFunc - function providing the name of index
 func NewElasticHookWithFunc(client *elastic.Client, host string, level logrus.Level, indexFunc IndexNameFunc) (*ElasticHook, error) {
+	return newHookFuncAndFireFunc(client, host, level, indexFunc, syncFireFunc)
+}
+
+// NewAsyncElasticHookWithFunc creates new asynchronous hook with
+// function that provides the index name. This is useful if the index name is
+// somehow dynamic especially based on time.
+// client - ElasticSearch client using gopkg.in/olivere/elastic.v5
+// host - host of system
+// level - log level
+// indexFunc - function providing the name of index
+func NewAsyncElasticHookWithFunc(client *elastic.Client, host string, level logrus.Level, indexFunc IndexNameFunc) (*ElasticHook, error) {
+	return newHookFuncAndFireFunc(client, host, level, indexFunc, asyncFireFunc)
+}
+
+func newHookFuncAndFireFunc(client *elastic.Client, host string, level logrus.Level, indexFunc IndexNameFunc, fireFunc fireFunc) (*ElasticHook, error) {
 	levels := []logrus.Level{}
 	for _, l := range []logrus.Level{
 		logrus.PanicLevel,
@@ -86,13 +113,22 @@ func NewElasticHookWithFunc(client *elastic.Client, host string, level logrus.Le
 		levels:    levels,
 		ctx:       ctx,
 		ctxCancel: cancel,
+		fireFunc:  fireFunc,
 	}, nil
 }
 
 // Fire is required to implement
 // Logrus hook
 func (hook *ElasticHook) Fire(entry *logrus.Entry) error {
+	return hook.fireFunc(entry, hook)
+}
 
+func asyncFireFunc(entry *logrus.Entry, hook *ElasticHook) error {
+	go syncFireFunc(entry, hook)
+	return nil
+}
+
+func syncFireFunc(entry *logrus.Entry, hook *ElasticHook) error {
 	level := entry.Level.String()
 
 	if e, ok := entry.Data[logrus.ErrorKey]; ok && e != nil {
