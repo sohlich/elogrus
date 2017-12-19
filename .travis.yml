@@ -1,0 +1,20 @@
+sudo: required
+language: go
+go:
+    - tip
+    
+notifications:
+    email: false
+
+services:
+  - docker
+  
+before_install:
+- docker pull elasticsearch:5.6.5-alpine
+- docker run -d -p 7777:9200 --name elk elasticsearch:5.6.5-alpine
+- docker logs elk
+
+install:
+  - go get github.com/sirupsen/logrus
+  - go get gopkg.in/olivere/elastic.v5
+  - travis_wait 5

@@ -1,6 +1,7 @@
 package elogrus
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"testing"
@@ -14,9 +15,11 @@ import (
 	"gopkg.in/olivere/elastic.v5"
 
 	"reflect"
-
-	"golang.org/x/net/context"
 )
+
+//docker run -it --rm -p 7777:9200 -p 5601:5601 sebp/elk
+
+type NewHookFunc func(client *elastic.Client, host string, level logrus.Level, index string) (*ElasticHook, error)
 
 type Log struct{}
 
@@ -24,8 +27,16 @@ func (l Log) Printf(format string, args ...interface{}) {
 	log.Printf(format+"\n", args)
 }
 
-func TestHook(t *testing.T) {
-	if r, err := http.Get("http://localhost:9200"); err != nil {
+func TestSyncHook(t *testing.T) {
+	hookTest(NewElasticHook, t)
+}
+
+func TestAsyncHook(t *testing.T) {
+	hookTest(NewAsyncElasticHook, t)
+}
+
+func hookTest(hookfunc NewHookFunc, t *testing.T) {
+	if r, err := http.Get("http://127.0.0.1:7777"); err != nil {
 		log.Fatal("Elastic not reachable")
 	} else {
 		buf, _ := ioutil.ReadAll(r.Body)
@@ -34,13 +45,17 @@ func TestHook(t *testing.T) {
 	}
 
 	client, err := elastic.NewClient(elastic.SetTraceLog(Log{}),
-		elastic.SetURL("http://localhost:9200"),
+		elastic.SetURL("http://127.0.0.1:7777"),
 		elastic.SetHealthcheck(false),
 		elastic.SetSniff(false))
 
 	if err != nil {
 		log.Panic(err)
 	}
+
+	client.
+		DeleteIndex("goplag").
+		Do(context.TODO())
 
 	hook, err := NewElasticHook(client, "localhost", logrus.DebugLevel, "goplag")
 	if err != nil {
@@ -62,7 +77,7 @@ func TestHook(t *testing.T) {
 		Do(context.TODO())
 
 	if searchResult.Hits.TotalHits != 100 {
-		t.Error("Not all logs pushed to elastic")
+		t.Errorf("Not all logs pushed to elastic: expected %d got %d", 100, searchResult.Hits.TotalHits)
 		t.FailNow()
 	}
 }
@@ -77,7 +92,7 @@ func TestError(t *testing.T) {
 		log.Panic(err)
 	}
 
-	_, err = client.
+	client.
 		DeleteIndex("errorlog").
 		Do(context.TODO())
 
