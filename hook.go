@@ -12,11 +12,11 @@ import (
 )
 
 var (
-	// Fired if the
-	// index is not created
+	// ErrCannotCreateIndex Fired if the index is not created
 	ErrCannotCreateIndex = fmt.Errorf("Cannot create index")
 )
 
+// IndexNameFunc get index name
 type IndexNameFunc func() string
 
 type fireFunc func(entry *logrus.Entry, hook *ElasticHook, indexName string) error
@@ -42,7 +42,7 @@ func NewElasticHook(client *elastic.Client, host string, level logrus.Level, ind
 	return NewElasticHookWithFunc(client, host, level, func() string { return index })
 }
 
-// NewElasticHook creates new  hook with asynchronous log
+// NewAsyncElasticHook creates new  hook with asynchronous log
 // client - ElasticSearch client using gopkg.in/olivere/elastic.v5
 // host - host of system
 // level - log level
@@ -94,14 +94,17 @@ func newHookFuncAndFireFunc(client *elastic.Client, host string, level logrus.Le
 	exists, err := client.IndexExists(indexFunc()).Do(ctx)
 	if err != nil {
 		// Handle error
+		cancel()
 		return nil, err
 	}
 	if !exists {
 		createIndex, err := client.CreateIndex(indexFunc()).Do(ctx)
 		if err != nil {
+			cancel()
 			return nil, err
 		}
 		if !createIndex.Acknowledged {
+			cancel()
 			return nil, ErrCannotCreateIndex
 		}
 	}
@@ -161,14 +164,12 @@ func syncFireFunc(entry *logrus.Entry, hook *ElasticHook, indexName string) erro
 	return err
 }
 
-// Required for logrus
-// hook implementation
+// Levels Required for logrus hook implementation
 func (hook *ElasticHook) Levels() []logrus.Level {
 	return hook.levels
 }
 
-// Cancels all calls to
-// elastic
+// Cancel all calls to elastic
 func (hook *ElasticHook) Cancel() {
 	hook.ctxCancel()
 }
