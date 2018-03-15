@@ -11,13 +11,13 @@ import (
 
 	"io/ioutil"
 
+	"github.com/olivere/elastic"
 	"github.com/sirupsen/logrus"
-	"gopkg.in/olivere/elastic.v5"
 
 	"reflect"
 )
 
-//docker run -it --rm -p 7777:9200 -p 5601:5601 sebp/elk
+//docker run -it --rm -p 7777:9200 -p 5601:5601 elasticsearch:alpine
 
 type NewHookFunc func(client *elastic.Client, host string, level logrus.Level, index string) (*ElasticHook, error)
 
@@ -28,14 +28,14 @@ func (l Log) Printf(format string, args ...interface{}) {
 }
 
 func TestSyncHook(t *testing.T) {
-	hookTest(NewElasticHook, t)
+	hookTest(NewElasticHook, "sync-log", t)
 }
 
 func TestAsyncHook(t *testing.T) {
-	hookTest(NewAsyncElasticHook, t)
+	hookTest(NewAsyncElasticHook, "async-log", t)
 }
 
-func hookTest(hookfunc NewHookFunc, t *testing.T) {
+func hookTest(hookfunc NewHookFunc, indexName string, t *testing.T) {
 	if r, err := http.Get("http://127.0.0.1:7777"); err != nil {
 		log.Fatal("Elastic not reachable")
 	} else {
@@ -44,7 +44,7 @@ func hookTest(hookfunc NewHookFunc, t *testing.T) {
 		fmt.Println(string(buf))
 	}
 
-	client, err := elastic.NewClient(elastic.SetTraceLog(Log{}),
+	client, err := elastic.NewClient(
 		elastic.SetURL("http://127.0.0.1:7777"),
 		elastic.SetHealthcheck(false),
 		elastic.SetSniff(false))
@@ -54,36 +54,38 @@ func hookTest(hookfunc NewHookFunc, t *testing.T) {
 	}
 
 	client.
-		DeleteIndex("goplag").
+		DeleteIndex(indexName).
 		Do(context.TODO())
 
-	hook, err := NewElasticHook(client, "localhost", logrus.DebugLevel, "goplag")
+	hook, err := hookfunc(client, "localhost", logrus.DebugLevel, indexName)
 	if err != nil {
 		log.Panic(err)
 		t.FailNow()
 	}
 	logrus.AddHook(hook)
 
-	for index := 0; index < 100; index++ {
+	samples := 100
+	for index := 0; index < samples; index++ {
 		logrus.Infof("Hustej msg %d", time.Now().Unix())
 	}
 
-	time.Sleep(5 * time.Second)
+	// Allow time for data to be processed.
+	time.Sleep(2 * time.Second)
 
 	termQuery := elastic.NewTermQuery("Host", "localhost")
 	searchResult, err := client.Search().
-		Index("goplag").
+		Index(indexName).
 		Query(termQuery).
 		Do(context.TODO())
 
-	if searchResult.Hits.TotalHits != 100 {
-		t.Errorf("Not all logs pushed to elastic: expected %d got %d", 100, searchResult.Hits.TotalHits)
+	if searchResult.Hits.TotalHits != int64(samples) {
+		t.Errorf("Not all logs pushed to elastic: expected %d got %d", samples, searchResult.Hits.TotalHits)
 		t.FailNow()
 	}
 }
 
 func TestError(t *testing.T) {
-	client, err := elastic.NewClient(elastic.SetTraceLog(Log{}),
+	client, err := elastic.NewClient(
 		elastic.SetURL("http://localhost:7777"),
 		elastic.SetHealthcheck(false),
 		elastic.SetSniff(false))
@@ -96,8 +98,6 @@ func TestError(t *testing.T) {
 		DeleteIndex("errorlog").
 		Do(context.TODO())
 
-	time.Sleep(1 * time.Second)
-
 	hook, err := NewElasticHook(client, "localhost", logrus.DebugLevel, "errorlog")
 	if err != nil {
 		log.Panic(err)
@@ -108,6 +108,7 @@ func TestError(t *testing.T) {
 	logrus.WithError(fmt.Errorf("This is error")).
 		Error("Failed to handle invalid api response")
 
+	// Allow time for data to be processed.
 	time.Sleep(1 * time.Second)
 
 	termQuery := elastic.NewTermQuery("Host", "localhost")
@@ -122,7 +123,6 @@ func TestError(t *testing.T) {
 	}
 
 	data := searchResult.Each(reflect.TypeOf(logrus.Entry{}))
-
 	for _, d := range data {
 		if l, ok := d.(logrus.Entry); ok {
 			if errData, ok := l.Data[logrus.ErrorKey]; !ok && errData != "This is error" {
