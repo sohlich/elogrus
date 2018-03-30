@@ -1,21 +1,22 @@
 # ElasticSearch Hook for [Logrus](https://github.com/Sirupsen/logrus) <img src="http://i.imgur.com/hTeVwmJ.png" width="40" height="40" alt=":walrus:" class="emoji" title=":walrus:"/>
 <img src="https://travis-ci.org/sohlich/elogrus.svg?branch=master" />
 
-Elasticsearch version | Elastic version -| Package URL
+Elasticsearch version | Elastic version | Package URL
 ----------------------|------------------|------------
+6.x                   | 6.0              | [`gopkg.in/sohlich/elogrus`](http://gopkg.in/sohlich/elogrus)
 5.x                   | 5.0              | [`gopkg.in/sohlich/elogrus.v2`](http://gopkg.in/sohlich/elogrus.v2)
 2.x                   | 3.0              | [`gopkg.in/sohlich/elogrus.v1`](http://gopkg.in/sohlich/elogrus.v1)
 
 
 ## Changelog
-
-v2.1 - Added support for async hook
+- elastic 6.x support (currently in master)
+- v2.1 - Added support for async hook
 
 
 ## Import
 
 ```
-go get gopkg.in/sohlich/elogrus.v2
+go get gopkg.in/sohlich/elogrus
 ```
 
 ## Usage
@@ -25,8 +26,8 @@ package main
 
 import (
 	"github.com/sirupsen/logrus"
-	"gopkg.in/sohlich/elogrus.v2"
-	"gopkg.in/olivere/elastic.v5"
+	"gopkg.in/sohlich/elogrus"
+	"gopkg.in/olivere/elastic"
 )
 
 
