@@ -3,7 +3,7 @@
 
 Elasticsearch version | Elastic version | Package URL
 ----------------------|------------------|------------
-6.x                   | 6.0              | [`gopkg.in/sohlich/elogrus`](http://gopkg.in/sohlich/elogrus)
+6.x                   | 6.0              | [`gopkg.in/sohlich/elogrus.v3`](http://gopkg.in/sohlich/elogrus.v3)
 5.x                   | 5.0              | [`gopkg.in/sohlich/elogrus.v2`](http://gopkg.in/sohlich/elogrus.v2)
 2.x                   | 3.0              | [`gopkg.in/sohlich/elogrus.v1`](http://gopkg.in/sohlich/elogrus.v1)
 
@@ -16,7 +16,7 @@ Elasticsearch version | Elastic version | Package URL
 ## Import
 
 ```
-go get gopkg.in/sohlich/elogrus
+go get gopkg.in/sohlich/elogrus.v3
 ```
 
 ## Usage
@@ -25,7 +25,7 @@ go get gopkg.in/sohlich/elogrus
 package main
 
 import (
-	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus.v3"
 	"gopkg.in/sohlich/elogrus"
 	"gopkg.in/olivere/elastic"
 )
