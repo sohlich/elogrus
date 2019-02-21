@@ -140,18 +140,31 @@ func syncFireFunc(entry *logrus.Entry, hook *ElasticHook, indexName string) erro
 		}
 	}
 
+	fn := ""
+	if entry.Caller != nil && entry.Caller.Func != nil {
+		fn = entry.Caller.Func.Name()
+	}
+	file := ""
+	if entry.Caller != nil {
+		file = entry.Caller.File
+	}
+
 	msg := struct {
 		Host      string
 		Timestamp string `json:"@timestamp"`
 		Message   string
 		Data      logrus.Fields
 		Level     string
+		Func      string
+		File      string
 	}{
-		hook.host,
-		entry.Time.UTC().Format(time.RFC3339Nano),
-		entry.Message,
-		entry.Data,
-		strings.ToUpper(level),
+		Host:      hook.host,
+		Timestamp: entry.Time.UTC().Format(time.RFC3339Nano),
+		Message:   entry.Message,
+		Data:      entry.Data,
+		Level:     strings.ToUpper(level),
+		Func:      fn,
+		File:      file,
 	}
 
 	_, err := hook.client.
