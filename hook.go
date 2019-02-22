@@ -149,12 +149,18 @@ func syncFireFunc(entry *logrus.Entry, hook *ElasticHook, indexName string) erro
 		file = entry.Caller.File
 	}
 
+	line := 0
+	if entry.Caller != nil {
+		line = entry.Caller.Line
+	}
+
 	msg := struct {
 		Host      string
 		Timestamp string `json:"@timestamp"`
 		Message   string
 		Data      logrus.Fields
 		Level     string
+		Line      int
 		Func      string
 		File      string
 	}{
@@ -163,6 +169,7 @@ func syncFireFunc(entry *logrus.Entry, hook *ElasticHook, indexName string) erro
 		Message:   entry.Message,
 		Data:      entry.Data,
 		Level:     strings.ToUpper(level),
+		Line:      line,
 		Func:      fn,
 		File:      file,
 	}
