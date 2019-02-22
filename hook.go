@@ -140,17 +140,10 @@ func syncFireFunc(entry *logrus.Entry, hook *ElasticHook, indexName string) erro
 		}
 	}
 
-	fn := ""
-	if entry.Caller != nil && entry.Caller.Func != nil {
+	fn, file, line := "", "", 0
+	if entry.HasCaller() {
 		fn = entry.Caller.Func.Name()
-	}
-	file := ""
-	if entry.Caller != nil {
 		file = entry.Caller.File
-	}
-
-	line := 0
-	if entry.Caller != nil {
 		line = entry.Caller.Line
 	}
 
