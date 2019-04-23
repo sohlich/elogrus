@@ -36,7 +36,7 @@ func TestAsyncHook(t *testing.T) {
 }
 
 func TestBulkProcessorHook(t *testing.T) {
-	hookTest(NewBulkProcessorElasticHook, "async-log", t)
+	hookTest(NewBulkProcessorElasticHook, "bulk-log", t)
 }
 
 func hookTest(hookfunc NewHookFunc, indexName string, t *testing.T) {
@@ -82,8 +82,13 @@ func hookTest(hookfunc NewHookFunc, indexName string, t *testing.T) {
 		Query(termQuery).
 		Do(context.TODO())
 
-	if searchResult.Hits.TotalHits != int64(samples) {
-		t.Errorf("Not all logs pushed to elastic: expected %d got %d", samples, searchResult.Hits.TotalHits)
+	if err != nil {
+		t.Errorf("Search error: %v", err)
+		t.FailNow()
+	}
+
+	if searchResult.TotalHits() != int64(samples) {
+		t.Errorf("Not all logs pushed to elastic: expected %d got %d", samples, searchResult.TotalHits())
 		t.FailNow()
 	}
 }
@@ -120,7 +125,7 @@ func TestError(t *testing.T) {
 		Query(termQuery).
 		Do(context.TODO())
 
-	if !(searchResult.Hits.TotalHits >= 1) {
+	if !(searchResult.TotalHits() >= int64(1)) {
 		t.Error("No log created")
 		t.FailNow()
 	}
