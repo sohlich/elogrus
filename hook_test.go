@@ -35,6 +35,10 @@ func TestAsyncHook(t *testing.T) {
 	hookTest(NewAsyncElasticHook, "async-log", t)
 }
 
+func TestBulkProcessorHook(t *testing.T) {
+	hookTest(NewBulkProcessorElasticHook, "async-log", t)
+}
+
 func hookTest(hookfunc NewHookFunc, indexName string, t *testing.T) {
 	if r, err := http.Get("http://127.0.0.1:7777"); err != nil {
 		log.Fatal("Elastic not reachable")
@@ -109,8 +113,7 @@ func TestError(t *testing.T) {
 		Error("Failed to handle invalid api response")
 
 	// Allow time for data to be processed.
-	time.Sleep(1 * time.Second)
-
+	time.Sleep(1 * time.Second) 
 	termQuery := elastic.NewTermQuery("Host", "localhost")
 	searchResult, err := client.Search().
 		Index("errorlog").
