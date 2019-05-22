@@ -35,6 +35,10 @@ func TestAsyncHook(t *testing.T) {
 	hookTest(NewAsyncElasticHook, "async-log", t)
 }
 
+func TestBulkProcessorHook(t *testing.T) {
+	hookTest(NewBulkProcessorElasticHook, "bulk-log", t)
+}
+
 func hookTest(hookfunc NewHookFunc, indexName string, t *testing.T) {
 	if r, err := http.Get("http://127.0.0.1:7777"); err != nil {
 		log.Fatal("Elastic not reachable")
@@ -78,8 +82,13 @@ func hookTest(hookfunc NewHookFunc, indexName string, t *testing.T) {
 		Query(termQuery).
 		Do(context.TODO())
 
-	if searchResult.Hits.TotalHits != int64(samples) {
-		t.Errorf("Not all logs pushed to elastic: expected %d got %d", samples, searchResult.Hits.TotalHits)
+	if err != nil {
+		t.Errorf("Search error: %v", err)
+		t.FailNow()
+	}
+
+	if searchResult.TotalHits() != int64(samples) {
+		t.Errorf("Not all logs pushed to elastic: expected %d got %d", samples, searchResult.TotalHits())
 		t.FailNow()
 	}
 }
@@ -109,15 +118,14 @@ func TestError(t *testing.T) {
 		Error("Failed to handle invalid api response")
 
 	// Allow time for data to be processed.
-	time.Sleep(1 * time.Second)
-
+	time.Sleep(1 * time.Second) 
 	termQuery := elastic.NewTermQuery("Host", "localhost")
 	searchResult, err := client.Search().
 		Index("errorlog").
 		Query(termQuery).
 		Do(context.TODO())
 
-	if !(searchResult.Hits.TotalHits >= 1) {
+	if !(searchResult.TotalHits() >= int64(1)) {
 		t.Error("No log created")
 		t.FailNow()
 	}
