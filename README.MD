@@ -1,3 +1,6 @@
+# Maintainer wanted
+This library is looking for the maintainer.
+
 # ElasticSearch Hook for [Logrus](https://github.com/Sirupsen/logrus) <img src="http://i.imgur.com/hTeVwmJ.png" width="40" height="40" alt=":walrus:" class="emoji" title=":walrus:"/>
 <img src="https://travis-ci.org/sohlich/elogrus.svg?branch=master" />
 
