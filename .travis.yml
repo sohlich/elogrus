@@ -4,7 +4,11 @@ go:
     - stable
     
 notifications:
-    email: false
+  email:
+    recipients:
+      - liuzoxan@gmail.com # Current maintainer
+    on_success: change
+    on_failure: always
 
 services:
   - docker
