@@ -1,19 +1,16 @@
-# Maintainer wanted
-This library is looking for the maintainer.
-
 # ElasticSearch Hook for [Logrus](https://github.com/Sirupsen/logrus) <img src="http://i.imgur.com/hTeVwmJ.png" width="40" height="40" alt=":walrus:" class="emoji" title=":walrus:"/>
 <img src="https://travis-ci.org/sohlich/elogrus.svg?branch=master" />
 
-Elasticsearch version | Elastic version | Package URL
-----------------------|------------------|------------
-6.x                   | 6.0              | [`gopkg.in/sohlich/elogrus.v3`](http://gopkg.in/sohlich/elogrus.v3)
-5.x                   | 5.0              | [`gopkg.in/sohlich/elogrus.v2`](http://gopkg.in/sohlich/elogrus.v2)
-2.x                   | 3.0              | [`gopkg.in/sohlich/elogrus.v1`](http://gopkg.in/sohlich/elogrus.v1)
+Elasticsearch version | Elastic version  | Package URL                              | Remarks |
+----------------------|------------------|------------------------------------------|---------|
+7.x                   | 7.0              | [`github.com/sohlich/elogrus/v7`](http://github.com/sohlich/elogrus/v7)| Use Go modules.
+6.x                   | 6.0              | [`gopkg.in/sohlich/elogrus.v3`](http://gopkg.in/sohlich/elogrus.v3)    | Actively maintained.
+5.x                   | 5.0              | [`gopkg.in/sohlich/elogrus.v2`](http://gopkg.in/sohlich/elogrus.v2)    | Actively maintained.
+2.x                   | 3.0              | [`gopkg.in/sohlich/elogrus.v1`](http://gopkg.in/sohlich/elogrus.v1)    | Deprecated. Please update.
 
 
 ## Changelog
-- elastic 6.x support (currently in master)
-- v2.1 - Added support for async hook
+- elastic 7.x support (currently in master)
 
 
 ## Import

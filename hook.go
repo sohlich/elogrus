@@ -6,14 +6,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/olivere/elastic/v7"
 	"github.com/sirupsen/logrus"
-
-	"github.com/olivere/elastic"
 )
 
 var (
 	// ErrCannotCreateIndex Fired if the index is not created
-	ErrCannotCreateIndex = fmt.Errorf("Cannot create index")
+	ErrCannotCreateIndex = fmt.Errorf("cannot create index")
 )
 
 // IndexNameFunc get index name
@@ -34,15 +33,15 @@ type ElasticHook struct {
 }
 
 type message struct {
-		Host      string
-		Timestamp string `json:"@timestamp"`
-		Message   string
-		Data      logrus.Fields
-		Level     string
+	Host      string
+	Timestamp string `json:"@timestamp"`
+	Message   string
+	Data      logrus.Fields
+	Level     string
 }
 
 // NewElasticHook creates new hook.
-// client - ElasticSearch client using gopkg.in/olivere/elastic.v5
+// client - ElasticSearch client with specific es version (v5/v6/v7/...)
 // host - host of system
 // level - log level
 // index - name of the index in ElasticSearch
@@ -51,7 +50,7 @@ func NewElasticHook(client *elastic.Client, host string, level logrus.Level, ind
 }
 
 // NewAsyncElasticHook creates new  hook with asynchronous log.
-// client - ElasticSearch client using gopkg.in/olivere/elastic.v5
+// client - ElasticSearch client with specific es version (v5/v6/v7/...)
 // host - host of system
 // level - log level
 // index - name of the index in ElasticSearch
@@ -60,7 +59,7 @@ func NewAsyncElasticHook(client *elastic.Client, host string, level logrus.Level
 }
 
 // NewBulkProcessorElasticHook creates new hook that uses a bulk processor for indexing.
-// client - ElasticSearch client using gopkg.in/olivere/elastic.v5
+// client - ElasticSearch client with specific es version (v5/v6/v7/...)
 // host - host of system
 // level - log level
 // index - name of the index in ElasticSearch
@@ -71,7 +70,7 @@ func NewBulkProcessorElasticHook(client *elastic.Client, host string, level logr
 // NewElasticHookWithFunc creates new hook with
 // function that provides the index name. This is useful if the index name is
 // somehow dynamic especially based on time.
-// client - ElasticSearch client using gopkg.in/olivere/elastic.v5
+// client - ElasticSearch client with specific es version (v5/v6/v7/...)
 // host - host of system
 // level - log level
 // indexFunc - function providing the name of index
@@ -82,7 +81,7 @@ func NewElasticHookWithFunc(client *elastic.Client, host string, level logrus.Le
 // NewAsyncElasticHookWithFunc creates new asynchronous hook with
 // function that provides the index name. This is useful if the index name is
 // somehow dynamic especially based on time.
-// client - ElasticSearch client using gopkg.in/olivere/elastic.v5
+// client - ElasticSearch client with specific es version (v5/v6/v7/...)
 // host - host of system
 // level - log level
 // indexFunc - function providing the name of index
@@ -94,20 +93,20 @@ func NewAsyncElasticHookWithFunc(client *elastic.Client, host string, level logr
 // function that provides the index name. This is useful if the index name is
 // somehow dynamic especially based on time that uses a bulk processor for
 // indexing.
-// client - ElasticSearch client using gopkg.in/olivere/elastic.v5
+// client - ElasticSearch client with specific es version (v5/v6/v7/...)
 // host - host of system
 // level - log level
 // indexFunc - function providing the name of index
 func NewBulkProcessorElasticHookWithFunc(client *elastic.Client, host string, level logrus.Level, indexFunc IndexNameFunc) (*ElasticHook, error) {
 	fireFunc, err := makeBulkFireFunc(client)
 	if err != nil {
-	  return nil, err
+		return nil, err
 	}
 	return newHookFuncAndFireFunc(client, host, level, indexFunc, fireFunc)
 }
 
 func newHookFuncAndFireFunc(client *elastic.Client, host string, level logrus.Level, indexFunc IndexNameFunc, fireFunc fireFunc) (*ElasticHook, error) {
-	levels := []logrus.Level{}
+	var levels []logrus.Level
 	for _, l := range []logrus.Level{
 		logrus.PanicLevel,
 		logrus.FatalLevel,
