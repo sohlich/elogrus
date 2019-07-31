@@ -3,7 +3,7 @@
 
 Elasticsearch version | Elastic version  | Package URL                              | Remarks |
 ----------------------|------------------|------------------------------------------|---------|
-7.x                   | 7.0              | [`github.com/sohlich/elogrus/v7`](http://github.com/sohlich/elogrus/v7)| Use Go modules.
+7.x                   | 7.0              | [`github.com/sohlich/elogrus/v7`](http://github.com/sohlich/elogrus)   | Use Go modules.
 6.x                   | 6.0              | [`gopkg.in/sohlich/elogrus.v3`](http://gopkg.in/sohlich/elogrus.v3)    | Actively maintained.
 5.x                   | 5.0              | [`gopkg.in/sohlich/elogrus.v2`](http://gopkg.in/sohlich/elogrus.v2)    | Actively maintained.
 2.x                   | 3.0              | [`gopkg.in/sohlich/elogrus.v1`](http://gopkg.in/sohlich/elogrus.v1)    | Deprecated. Please update.
