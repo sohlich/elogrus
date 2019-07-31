@@ -6,14 +6,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/olivere/elastic/v7"
 	"github.com/sirupsen/logrus"
-
-	"github.com/olivere/elastic"
 )
 
 var (
 	// ErrCannotCreateIndex Fired if the index is not created
-	ErrCannotCreateIndex = fmt.Errorf("Cannot create index")
+	ErrCannotCreateIndex = fmt.Errorf("cannot create index")
 )
 
 // IndexNameFunc get index name
@@ -34,11 +33,11 @@ type ElasticHook struct {
 }
 
 type message struct {
-		Host      string
-		Timestamp string `json:"@timestamp"`
-		Message   string
-		Data      logrus.Fields
-		Level     string
+	Host      string
+	Timestamp string `json:"@timestamp"`
+	Message   string
+	Data      logrus.Fields
+	Level     string
 }
 
 // NewElasticHook creates new hook.
@@ -101,7 +100,7 @@ func NewAsyncElasticHookWithFunc(client *elastic.Client, host string, level logr
 func NewBulkProcessorElasticHookWithFunc(client *elastic.Client, host string, level logrus.Level, indexFunc IndexNameFunc) (*ElasticHook, error) {
 	fireFunc, err := makeBulkFireFunc(client)
 	if err != nil {
-	  return nil, err
+		return nil, err
 	}
 	return newHookFuncAndFireFunc(client, host, level, indexFunc, fireFunc)
 }

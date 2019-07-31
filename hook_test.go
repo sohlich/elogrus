@@ -2,22 +2,17 @@ package elogrus
 
 import (
 	"context"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"reflect"
 	"testing"
 	"time"
 
-	"fmt"
-
-	"io/ioutil"
-
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 	"github.com/sirupsen/logrus"
-
-	"reflect"
 )
-
-//docker run -it --rm -p 7777:9200 -p 5601:5601 elasticsearch:alpine
 
 type NewHookFunc func(client *elastic.Client, host string, level logrus.Level, index string) (*ElasticHook, error)
 
@@ -118,7 +113,7 @@ func TestError(t *testing.T) {
 		Error("Failed to handle invalid api response")
 
 	// Allow time for data to be processed.
-	time.Sleep(1 * time.Second) 
+	time.Sleep(1 * time.Second)
 	termQuery := elastic.NewTermQuery("Host", "localhost")
 	searchResult, err := client.Search().
 		Index("errorlog").
