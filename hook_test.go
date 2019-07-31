@@ -16,12 +16,6 @@ import (
 
 type NewHookFunc func(client *elastic.Client, host string, level logrus.Level, index string) (*ElasticHook, error)
 
-type Log struct{}
-
-func (l Log) Printf(format string, args ...interface{}) {
-	log.Printf(format+"\n", args)
-}
-
 func TestSyncHook(t *testing.T) {
 	hookTest(NewElasticHook, "sync-log", t)
 }
@@ -59,7 +53,6 @@ func hookTest(hookfunc NewHookFunc, indexName string, t *testing.T) {
 	hook, err := hookfunc(client, "localhost", logrus.DebugLevel, indexName)
 	if err != nil {
 		log.Panic(err)
-		t.FailNow()
 	}
 	logrus.AddHook(hook)
 
@@ -109,7 +102,7 @@ func TestError(t *testing.T) {
 	}
 	logrus.AddHook(hook)
 
-	logrus.WithError(fmt.Errorf("This is error")).
+	logrus.WithError(fmt.Errorf("this is error")).
 		Error("Failed to handle invalid api response")
 
 	// Allow time for data to be processed.
@@ -128,7 +121,7 @@ func TestError(t *testing.T) {
 	data := searchResult.Each(reflect.TypeOf(logrus.Entry{}))
 	for _, d := range data {
 		if l, ok := d.(logrus.Entry); ok {
-			if errData, ok := l.Data[logrus.ErrorKey]; !ok && errData != "This is error" {
+			if errData, ok := l.Data[logrus.ErrorKey]; !ok && errData != "this is error" {
 				t.Error("Error not serialized properly")
 				t.FailNow()
 			}
