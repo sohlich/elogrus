@@ -4,7 +4,7 @@
 ## Releases
 **Notice that the master branch always refers to the latest version of Elastic. If you want to use stable versions of elogus, you should use the packages released via [gopkg.in](https://gopkg.in).**
 
-Here's the version matrix:
+*Here's the version matrix:*
 
 ElasticSearch version | Elastic version  | Package URL                              | Remarks |
 ----------------------|------------------|------------------------------------------|---------|
@@ -21,7 +21,7 @@ ElasticSearch version | Elastic version  | Package URL                          
 ## Import
 
 ```
-go get gopkg.in/sohlich/elogrus.v3
+go get gopkg.in/sohlich/elogrus.v7
 ```
 
 ## Usage
@@ -30,22 +30,21 @@ go get gopkg.in/sohlich/elogrus.v3
 package main
 
 import (
-	"github.com/sirupsen/logrus.v3"
-	"gopkg.in/sohlich/elogrus"
-	"gopkg.in/olivere/elastic"
+	"github.com/olivere/elastic/v7"
+	"github.com/sirupsen/logrus"
+	"gopkg.in/sohlich/elogrus.v7"
 )
-
 
 func main() {
 	log := logrus.New()
 	client, err := elastic.NewClient(elastic.SetURL("http://localhost:9200"))
 	if err != nil {
 		log.Panic(err)
-	}	
-	hook, err := elogrus.NewElasticHook(client, "localhost", logrus.DebugLevel, "mylog")
+	}
+	hook, err := elogrus.NewAsyncElasticHook(client, "localhost", logrus.DebugLevel, "mylog")
 	if err != nil {
 		log.Panic(err)
-	}	
+	}
 	log.Hooks.Add(hook)
 
 	log.WithFields(logrus.Fields{
