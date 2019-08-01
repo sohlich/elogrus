@@ -1,4 +1,4 @@
-module github.com/sohlich/elogrus/v7
+module github.com/sohlich/elogrus.v7
 
 go 1.12
 
