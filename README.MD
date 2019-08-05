@@ -13,16 +13,29 @@ ElasticSearch version | Elastic version  | Package URL                          
 5.x                   | 5.0              | [`gopkg.in/sohlich/elogrus.v2`](http://gopkg.in/sohlich/elogrus.v2)| Actively maintained.
 2.x                   | 3.0              | [`gopkg.in/sohlich/elogrus.v1`](http://gopkg.in/sohlich/elogrus.v1)| Deprecated. Please update.
 
+*For elastic search 7.x*
+```bash
+# We name v7 to align with elastic v7
+go get gopkg.in/sohlich/elogrus.v7
+go get github.com/olivere/elastic/v7
+```
+
+*For elastic search 6.x*
+```bash
+go get gopkg.in/sohlich/elogrus.v3
+go get github.com/olivere/elastic
+
+```
+
+*For elastic search 5.x*
+```bash
+go get gopkg.in/sohlich/elogrus.v2
+go get gopkg.in/olivere/elastic.v5
+
+```
 
 ## Changelog
 - elastic 7.x support (currently in master)
-
-
-## Import
-
-```
-go get gopkg.in/sohlich/elogrus.v7
-```
 
 ## Usage
 
