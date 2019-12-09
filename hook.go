@@ -33,11 +33,13 @@ type ElasticHook struct {
 }
 
 type message struct {
-	Host      string
+	Host      string `json:"host,omitempty"`
 	Timestamp string `json:"@timestamp"`
-	Message   string
+	File      string `json:"file,omitempty"`
+	Func      string `json:"func,omitempty"`
+	Message   string `json:"message,omitempty"`
 	Data      logrus.Fields
-	Level     string
+	Level     string `json:"level,omitempty"`
 }
 
 // NewElasticHook creates new hook.
@@ -114,6 +116,7 @@ func newHookFuncAndFireFunc(client *elastic.Client, host string, level logrus.Le
 		logrus.WarnLevel,
 		logrus.InfoLevel,
 		logrus.DebugLevel,
+		logrus.TraceLevel,
 	} {
 		if l <= level {
 			levels = append(levels, l)
@@ -172,9 +175,18 @@ func createMessage(entry *logrus.Entry, hook *ElasticHook) *message {
 		}
 	}
 
+	var file string
+	var function string
+	if entry.HasCaller() {
+		file = entry.Caller.File
+		function = entry.Caller.Function
+	}
+
 	return &message{
 		hook.host,
 		entry.Time.UTC().Format(time.RFC3339Nano),
+		file,
+		function,
 		entry.Message,
 		entry.Data,
 		strings.ToUpper(level),
