@@ -1,9 +1,8 @@
-module gopkg.in/sohlich/elogrus.v7
+module github.com/dobbbb/elogrus/v7
 
-go 1.12
+go 1.16
 
 require (
-	github.com/mailru/easyjson v0.0.0-20190626092158-b2ccc519800e // indirect
-	github.com/olivere/elastic/v7 v7.0.4
-	github.com/sirupsen/logrus v1.4.2
+	github.com/olivere/elastic/v7 v7.0.20
+	github.com/sirupsen/logrus v1.6.0
 )

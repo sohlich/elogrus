@@ -3,10 +3,10 @@ package elogrus
 import (
 	"context"
 	"fmt"
+	"github.com/olivere/elastic/v7"
 	"strings"
 	"time"
 
-	"github.com/olivere/elastic/v7"
 	"github.com/sirupsen/logrus"
 )
 
