@@ -178,7 +178,7 @@ func createMessage(entry *logrus.Entry, hook *ElasticHook) *message {
 	var file string
 	var function string
 	if entry.HasCaller() {
-		file = entry.Caller.File
+		file = fmt.Sprintf("%s:%d", entry.Caller.File, entry.Caller.Line)
 		function = entry.Caller.Function
 	}
 
